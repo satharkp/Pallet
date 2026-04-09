@@ -13,19 +13,20 @@ import { useThree } from '@react-three/fiber';
 
 // Scene Bridge: Captures scroll and applies to 3D elements
 function SceneController() {
-  const { viewport, camera } = useThree();
-  const isMobile = viewport.width < 5; // Simplified check for mobile aspect ratio
+  const { camera } = useThree();
 
   React.useEffect(() => {
+    const isMobile = window.innerWidth < 768;
     if (isMobile) {
-      camera.position.set(0, 4, 12);
-      camera.fov = 55;
+      camera.position.set(0, 2, 10);
+      camera.fov = 50;
     } else {
-      camera.position.set(0, 4, 8);
-      camera.fov = 35;
+      camera.position.set(0, 1.5, 8);
+      camera.fov = 40;
     }
+    camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
-  }, [isMobile, camera]);
+  }, [camera]);
 
   return null;
 }
@@ -79,40 +80,60 @@ function AssemblyScene() {
   useFrame((state) => {
     const scroll = scrollYProgress.get();
     
-    // Pallet 1: Fly in from top-left
+    // Easing functions for realistic physics
+    const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+    const easeOutBounce = (x) => {
+        const n1 = 7.5625;
+        const d1 = 2.75;
+        if (x < 1 / d1) { return n1 * x * x; } 
+        else if (x < 2 / d1) { return n1 * (x -= 1.5 / d1) * x + 0.75; } 
+        else if (x < 2.5 / d1) { return n1 * (x -= 2.25 / d1) * x + 0.9375; } 
+        else { return n1 * (x -= 2.625 / d1) * x + 0.984375; }
+    };
+    
+    // Pallet 1: Drop from top-left
     if (p1.current) {
-      const t = Math.min(1, Math.max(0, scroll * 3)); // 0.0 to 0.33
-      p1.current.position.set(-5 + t * 4.35, 5 - t * 5, -5 + t * 4.5);
-      p1.current.rotation.set(t * Math.PI, t * Math.PI * 0.5, 0);
+      const t = Math.min(1, Math.max(0, scroll * 4)); // 0.0 to 0.25
+      const e = easeOutCubic(t);
+      const b = easeOutBounce(t);
+      p1.current.position.set(-5 + e * 4.35, 4 - b * 4, -3 + e * 2.5);
+      p1.current.rotation.set((1 - e) * 0.5, (1 - e) * Math.PI / 4, 0);
     }
 
-    // Pallet 2: Fly in from top-right
+    // Pallet 2: Drop from top-right
     if (p2.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.05) * 3)); // 0.05 to 0.38
-      p2.current.position.set(5 - t * 4.35, 5 - t * 5, -5 + t * 4.5);
-      p2.current.rotation.set(-t * Math.PI, -t * Math.PI * 0.5, 0);
+      const t = Math.min(1, Math.max(0, (scroll - 0.05) * 4)); // 0.05 to 0.3
+      const e = easeOutCubic(t);
+      const b = easeOutBounce(t);
+      p2.current.position.set(5 - e * 4.35, 4 - b * 4, -3 + e * 2.5);
+      p2.current.rotation.set((1 - e) * 0.5, -(1 - e) * Math.PI / 4, 0);
     }
 
-    // Pallet 3: Fly in from bottom-left
+    // Pallet 3: Drop from bottom-left
     if (p3.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.1) * 3));
-      p3.current.position.set(-5 + t * 4.35, 8 - t * 8, 5 - t * 4.5);
-      p3.current.rotation.set(t * Math.PI * 2, 0, t * Math.PI);
+      const t = Math.min(1, Math.max(0, (scroll - 0.1) * 4)); // 0.1 to 0.35
+      const e = easeOutCubic(t);
+      const b = easeOutBounce(t);
+      p3.current.position.set(-5 + e * 4.35, 4 - b * 4, 3 - e * 2.5);
+      p3.current.rotation.set(-(1 - e) * 0.5, (1 - e) * Math.PI / 4, 0);
     }
 
-    // Pallet 4: Fly in from bottom-right
+    // Pallet 4: Drop from bottom-right
     if (p4.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.15) * 3));
-      p4.current.position.set(5 - t * 4.35, 8 - t * 8, 5 - t * 4.5);
-      p4.current.rotation.set(-t * Math.PI * 2, 0, -t * Math.PI);
+      const t = Math.min(1, Math.max(0, (scroll - 0.15) * 4)); // 0.15 to 0.4
+      const e = easeOutCubic(t);
+      const b = easeOutBounce(t);
+      p4.current.position.set(5 - e * 4.35, 4 - b * 4, 3 - e * 2.5);
+      p4.current.rotation.set(-(1 - e) * 0.5, -(1 - e) * Math.PI / 4, 0);
     }
 
     // Mattress appearance
     if (mattress.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.4) * 4));
-      mattress.current.scale.set(1.2, t * 1, 1);
-      mattress.current.position.y = 0.2 + (1 - t) * 2;
-      mattress.current.material.opacity = t;
+      const t = Math.min(1, Math.max(0, (scroll - 0.35) * 3));
+      const e = easeOutCubic(t);
+      mattress.current.scale.set(1.2, Math.max(0.01, e * 1), 1); // Prevent zero-scale warnings
+      mattress.current.position.y = 1.5 - e * 1.3; // Starts high, drops onto pallets
+      mattress.current.material.opacity = e;
     }
 
     // Scene tilt/rotation
