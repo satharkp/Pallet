@@ -9,7 +9,7 @@ import {
   RoundedBox
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useThree } from '@react-three/fiber';
 
 // Scene Bridge: Captures scroll and applies to 3D elements
@@ -97,6 +97,7 @@ function AssemblyScene() {
       const t = Math.min(1, Math.max(0, (scroll - 0.1) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
+      if (t === 0) p1.current.scale.set(0,0,0); else p1.current.scale.set(1,1,1);
       p1.current.position.set(-5 + e * 4.35, 4 - b * 4, -3 + e * 2.5);
       p1.current.rotation.set((1 - e) * 0.5, (1 - e) * Math.PI / 4, 0);
     }
@@ -106,6 +107,7 @@ function AssemblyScene() {
       const t = Math.min(1, Math.max(0, (scroll - 0.15) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
+      if (t === 0) p2.current.scale.set(0,0,0); else p2.current.scale.set(1,1,1);
       p2.current.position.set(5 - e * 4.35, 4 - b * 4, -3 + e * 2.5);
       p2.current.rotation.set((1 - e) * 0.5, -(1 - e) * Math.PI / 4, 0);
     }
@@ -115,6 +117,7 @@ function AssemblyScene() {
       const t = Math.min(1, Math.max(0, (scroll - 0.2) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
+      if (t === 0) p3.current.scale.set(0,0,0); else p3.current.scale.set(1,1,1);
       p3.current.position.set(-5 + e * 4.35, 4 - b * 4, 3 - e * 2.5);
       p3.current.rotation.set(-(1 - e) * 0.5, (1 - e) * Math.PI / 4, 0);
     }
@@ -124,22 +127,28 @@ function AssemblyScene() {
       const t = Math.min(1, Math.max(0, (scroll - 0.25) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
+      if (t === 0) p4.current.scale.set(0,0,0); else p4.current.scale.set(1,1,1);
       p4.current.position.set(5 - e * 4.35, 4 - b * 4, 3 - e * 2.5);
       p4.current.rotation.set(-(1 - e) * 0.5, -(1 - e) * Math.PI / 4, 0);
     }
 
     // Mattress appearance
     if (mattress.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.45) * 3));
-      const e = easeOutCubic(t);
-      mattress.current.scale.set(1, Math.max(0.01, e * 1), 1); 
-      mattress.current.position.y = 1.5 - e * 1.45; // Lands perfectly on pallets (Y=0.05)
+      const t = Math.min(1, Math.max(0, (scroll - 0.3) * 4));
+      const b = easeOutBounce(t);
+      
+      if (t === 0) {
+        mattress.current.scale.set(0, 0, 0);
+      } else {
+        mattress.current.scale.set(1, 1, 1); 
+        mattress.current.position.y = 4 - b * 3.95; // Lands perfectly on pallets (Y=0.05)
+      }
 
-      // Apply opacity to all meshes in the group
+      // Ensure it's fully opaque and doesn't ghost
       mattress.current.traverse((child) => {
         if (child.isMesh) {
-          child.material.transparent = true;
-          child.material.opacity = e;
+          child.material.transparent = false;
+          child.material.opacity = 1;
         }
       });
     }
@@ -217,6 +226,13 @@ export default function Hero() {
   const textScale = useTransform(scrollYProgress, [0, 0.05], [1, 0.85]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.02], [1, 0]);
 
+  const [showText, setShowText] = React.useState(true);
+  
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest > 0.05 && showText) setShowText(false);
+    else if (latest <= 0.05 && !showText) setShowText(true);
+  });
+
   return (
     <section ref={containerRef} className="relative h-[500vh] w-full bg-premium-gray">
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
@@ -240,18 +256,20 @@ export default function Hero() {
         </div>
 
         {/* Text Overlay */}
-        <motion.div
-          style={{ opacity: textOpacity, scale: textScale }}
-          className="relative z-20 text-center pointer-events-none px-6"
-        >
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-heading font-light tracking-tighter text-charcoal leading-none">
-            WOOD<br />
-            <span className="text-wood-rich italic">NEST.</span>
-          </h1>
-          <p className="mt-6 md:mt-8 text-sm md:text-xl font-body text-charcoal/50 tracking-widest uppercase">
-            PALLET FURNITURE
-          </p>
-        </motion.div>
+        {showText && (
+          <motion.div
+            style={{ opacity: textOpacity, scale: textScale }}
+            className="relative z-20 text-center pointer-events-none px-6"
+          >
+            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-heading font-light tracking-tighter text-charcoal leading-none">
+              WOOD<br />
+              <span className="text-wood-rich italic">NEST.</span>
+            </h1>
+            <p className="mt-6 md:mt-8 text-sm md:text-xl font-body text-charcoal/50 tracking-widest uppercase">
+              PALLET FURNITURE
+            </p>
+          </motion.div>
+        )}
 
         {/* Scroll Hint */}
         <motion.div
