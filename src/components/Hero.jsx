@@ -9,6 +9,26 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useThree } from '@react-three/fiber';
+
+// Scene Bridge: Captures scroll and applies to 3D elements
+function SceneController() {
+  const { viewport, camera } = useThree();
+  const isMobile = viewport.width < 5; // Simplified check for mobile aspect ratio
+
+  React.useEffect(() => {
+    if (isMobile) {
+      camera.position.set(0, 5, 12);
+      camera.fov = 45;
+    } else {
+      camera.position.set(0, 4, 8);
+      camera.fov = 35;
+    }
+    camera.updateProjectionMatrix();
+  }, [isMobile, camera]);
+
+  return null;
+}
 
 // Individual Pallet Component (Optimized)
 function Pallet({ position, rotation }) {
@@ -98,6 +118,12 @@ function AssemblyScene() {
     // Scene tilt/rotation
     if (groupRef.current) {
       groupRef.current.rotation.y = scroll * Math.PI * 0.5;
+      
+      // Dynamic adjustments for mobile
+      const isMobile = state.size.width < 768;
+      const scale = isMobile ? 0.75 : 1;
+      groupRef.current.scale.set(scale, scale, scale);
+      groupRef.current.position.y = isMobile ? 0.5 : 0;
     }
   });
 
@@ -132,8 +158,9 @@ export default function Hero() {
         
         {/* Three.js Canvas */}
         <div className="absolute inset-0 z-10">
-          <Canvas shadows dpr={[1, 2]}>
-            <PerspectiveCamera makeDefault position={[0, 4, 8]} fov={window.innerWidth < 768 ? 50 : 35} />
+          <Canvas shadows dpr={[1, 2]} camera={{ fov: 40 }}>
+            {/* Dynamic camera positioning logic */}
+            <SceneController />
             <ambientLight intensity={1.5} />
             <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} castShadow intensity={2} />
             <pointLight position={[-10, -10, -10]} intensity={1} />
@@ -143,7 +170,15 @@ export default function Hero() {
                 <AssemblyScene />
               </Float>
               <Environment preset="apartment" />
-              <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.25} far={10} color="#000000" />
+              <ContactShadows 
+                resolution={1024} 
+                scale={20} 
+                blur={2} 
+                opacity={0.25} 
+                far={10} 
+                color="#000000" 
+                position={[0, -0.1, 0]}
+              />
             </Suspense>
           </Canvas>
         </div>
