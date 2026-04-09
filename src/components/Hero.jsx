@@ -57,7 +57,7 @@ function Pallet({ position, rotation }) {
 
       {/* Top Planks */}
       {[-0.45, -0.225, 0, 0.225, 0.45].map((z, i) => (
-        <mesh key={i} position={[0, 0.05, z]} castShadow receiveShadow>
+        <mesh key={i} position={[0, 0.025, z]} castShadow receiveShadow>
           <boxGeometry args={[1.2, 0.05, 0.18]} />
           <meshStandardMaterial map={texture} color="#5D4037" />
         </mesh>
@@ -84,17 +84,17 @@ function AssemblyScene() {
     // Easing functions for realistic physics
     const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
     const easeOutBounce = (x) => {
-        const n1 = 7.5625;
-        const d1 = 2.75;
-        if (x < 1 / d1) { return n1 * x * x; } 
-        else if (x < 2 / d1) { return n1 * (x -= 1.5 / d1) * x + 0.75; } 
-        else if (x < 2.5 / d1) { return n1 * (x -= 2.25 / d1) * x + 0.9375; } 
-        else { return n1 * (x -= 2.625 / d1) * x + 0.984375; }
+      const n1 = 7.5625;
+      const d1 = 2.75;
+      if (x < 1 / d1) { return n1 * x * x; }
+      else if (x < 2 / d1) { return n1 * (x -= 1.5 / d1) * x + 0.75; }
+      else if (x < 2.5 / d1) { return n1 * (x -= 2.25 / d1) * x + 0.9375; }
+      else { return n1 * (x -= 2.625 / d1) * x + 0.984375; }
     };
 
-    // Pallet 1: Drop from top-left
+    // Pallet 1: Drop from top-left (delayed start)
     if (p1.current) {
-      const t = Math.min(1, Math.max(0, scroll * 4)); // 0.0 to 0.25
+      const t = Math.min(1, Math.max(0, (scroll - 0.1) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
       p1.current.position.set(-5 + e * 4.35, 4 - b * 4, -3 + e * 2.5);
@@ -103,7 +103,7 @@ function AssemblyScene() {
 
     // Pallet 2: Drop from top-right
     if (p2.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.05) * 4)); // 0.05 to 0.3
+      const t = Math.min(1, Math.max(0, (scroll - 0.15) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
       p2.current.position.set(5 - e * 4.35, 4 - b * 4, -3 + e * 2.5);
@@ -112,7 +112,7 @@ function AssemblyScene() {
 
     // Pallet 3: Drop from bottom-left
     if (p3.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.1) * 4)); // 0.1 to 0.35
+      const t = Math.min(1, Math.max(0, (scroll - 0.2) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
       p3.current.position.set(-5 + e * 4.35, 4 - b * 4, 3 - e * 2.5);
@@ -121,7 +121,7 @@ function AssemblyScene() {
 
     // Pallet 4: Drop from bottom-right
     if (p4.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.15) * 4)); // 0.15 to 0.4
+      const t = Math.min(1, Math.max(0, (scroll - 0.25) * 4)); 
       const e = easeOutCubic(t);
       const b = easeOutBounce(t);
       p4.current.position.set(5 - e * 4.35, 4 - b * 4, 3 - e * 2.5);
@@ -130,11 +130,11 @@ function AssemblyScene() {
 
     // Mattress appearance
     if (mattress.current) {
-      const t = Math.min(1, Math.max(0, (scroll - 0.35) * 3));
+      const t = Math.min(1, Math.max(0, (scroll - 0.45) * 3));
       const e = easeOutCubic(t);
-      mattress.current.scale.set(1, Math.max(0.01, e * 1), 1); // True scale to prevent pillow distortion
-      mattress.current.position.y = 1.5 - e * 1.3; // Starts high, drops onto pallets
-      
+      mattress.current.scale.set(1, Math.max(0.01, e * 1), 1); 
+      mattress.current.position.y = 1.5 - e * 1.45; // Lands perfectly on pallets (Y=0.05)
+
       // Apply opacity to all meshes in the group
       mattress.current.traverse((child) => {
         if (child.isMesh) {
@@ -162,7 +162,7 @@ function AssemblyScene() {
       // Dynamic Y position:
       // Start slightly lower (-1.5) to clear space for header, then move up to absolute center (0)
       const initialY = isMobile ? -1.5 : -1.0;
-      const targetY = 0; 
+      const targetY = 0;
       groupRef.current.position.y = initialY + scroll * (targetY - initialY);
     }
   });
@@ -180,7 +180,7 @@ function AssemblyScene() {
         <RoundedBox args={[2.5, 0.35, 2.1]} radius={0.05} smoothness={4} position={[0, 0.175, 0]}>
           <meshStandardMaterial color="#f8f9fa" roughness={0.8} />
         </RoundedBox>
-        
+
         {/* Pillow Left */}
         <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[-0.6, 0.41, -0.65]}>
           <meshStandardMaterial color="#ffffff" roughness={0.9} />
@@ -213,9 +213,9 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.08], [1, 0.85]);
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.03], [1, 0]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.05], [1, 0.85]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.02], [1, 0]);
 
   return (
     <section ref={containerRef} className="relative h-[500vh] w-full bg-premium-gray">
@@ -249,7 +249,7 @@ export default function Hero() {
             <span className="text-wood-rich italic">NEST.</span>
           </h1>
           <p className="mt-6 md:mt-8 text-sm md:text-xl font-body text-charcoal/50 tracking-widest uppercase">
-            Artisanal 3D engineering
+            PALLET FURNITURE
           </p>
         </motion.div>
 
