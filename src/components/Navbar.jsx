@@ -33,7 +33,10 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="hidden sm:block bg-charcoal text-white px-5 md:px-6 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-accent-green transition-all transform hover:scale-105 active:scale-95">
+          <button 
+            onClick={() => window.open('mailto:hello@woodnest.com?subject=Quote Request', '_blank')}
+            className="hidden sm:block bg-charcoal text-white px-5 md:px-6 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-accent-green transition-all transform hover:scale-105 active:scale-95"
+          >
             Get a Quote
           </button>
           

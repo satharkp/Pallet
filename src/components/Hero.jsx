@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useMemo } from 'react';
+import React, { Suspense, useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   Environment,
@@ -70,6 +70,9 @@ function Pallet({ position, rotation }) {
 function AssemblyScene() {
   const { scrollYProgress } = useScroll();
   const groupRef = useRef();
+
+  const texture = useTexture('/assets/wood-texture.png');
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   // Create refs for each pallet to animate them manually in useFrame
   const p1 = useRef();
@@ -162,9 +165,9 @@ function AssemblyScene() {
 
       // Narrative focus: Scale up and move to center as we scroll
       // Initial scale: 1.0 (Desktop) / 0.75 (Mobile)
-      // Focus scale: 1.25 (Desktop) / 1.0 (Mobile)
+      // Focus scale: 1.4 (Desktop) / 1.0 (Mobile)
       const initialScale = isMobile ? 0.75 : 1;
-      const targetScale = isMobile ? 1.0 : 1.25;
+      const targetScale = isMobile ? 1.0 : 1.3;
       const currentScale = initialScale + scroll * (targetScale - initialScale);
       groupRef.current.scale.set(currentScale, currentScale, currentScale);
 
@@ -185,20 +188,34 @@ function AssemblyScene() {
 
       {/* Realistic Bed Assembly */}
       <group ref={mattress}>
+        {/* Headboard */}
+        <RoundedBox args={[2.5, 0.8, 0.15]} radius={0.05} smoothness={4} position={[0, 0.4, -1.15]}>
+          <meshStandardMaterial map={texture} color="#5D4037" />
+        </RoundedBox>
+
         {/* Main Mattress */}
         <RoundedBox args={[2.5, 0.35, 2.1]} radius={0.05} smoothness={4} position={[0, 0.175, 0]}>
-          <meshStandardMaterial color="#f8f9fa" roughness={0.8} />
+          <meshStandardMaterial color="#ede5ca" roughness={0.8} />
+        </RoundedBox>
+
+        {/* Blanket */}
+        <RoundedBox args={[2.5, 0.05, 1.0]} radius={0.03} smoothness={7} position={[0, 0.375, 0.525]}>
+          <meshStandardMaterial color="#ede5ca" roughness={0.9} />
         </RoundedBox>
 
         {/* Pillow Left */}
-        <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[-0.6, 0.41, -0.65]}>
-          <meshStandardMaterial color="#ffffff" roughness={0.9} />
-        </RoundedBox>
+        <Float speed={1} rotationIntensity={0.1} floatIntensity={0.1}>
+          <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[-0.6, 0.41, -0.65]}>
+            <meshStandardMaterial color="#ffffff" roughness={0.9} />
+          </RoundedBox>
+        </Float>
 
         {/* Pillow Right */}
-        <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[0.6, 0.41, -0.65]}>
-          <meshStandardMaterial color="#ffffff" roughness={0.9} />
-        </RoundedBox>
+        <Float speed={1} rotationIntensity={0.1} floatIntensity={0.1}>
+          <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[0.6, 0.41, -0.65]}>
+            <meshStandardMaterial color="#ffffff" roughness={0.9} />
+          </RoundedBox>
+        </Float>
       </group>
 
       {/* Shadows now move with the group for consistent grounding */}
@@ -222,15 +239,15 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.85]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.85]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.02], [1, 0]);
 
   const [showText, setShowText] = React.useState(true);
   
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.15 && showText) setShowText(false);
-    else if (latest <= 0.15 && !showText) setShowText(true);
+    if (latest > 0.1 && showText) setShowText(false);
+    else if (latest <= 0.1 && !showText) setShowText(true);
   });
 
   return (
