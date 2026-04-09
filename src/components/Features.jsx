@@ -21,11 +21,11 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="about" className="py-24 bg-white px-8">
+    <section id="about" className="pt-32 md:pt-40 pb-24 bg-white px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {features.map((feature, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
