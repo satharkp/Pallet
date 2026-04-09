@@ -256,7 +256,7 @@ export default function Hero() {
         {/* Scroll Hint */}
         <motion.div
           style={{ opacity: hintOpacity }}
-          className="absolute bottom-12 z-20 flex flex-col items-center gap-4"
+          className="absolute bottom-24 md:bottom-12 z-20 flex flex-col items-center gap-4"
         >
           <div className="w-[1px] h-12 bg-gradient-to-t from-wood-rich to-transparent" />
           <span className="text-[10px] uppercase tracking-[0.5em] text-wood-rich font-bold">Scroll Down</span>
