@@ -172,9 +172,9 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.85]);
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.08], [1, 0.85]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.03], [1, 0]);
 
   return (
     <section ref={containerRef} className="relative h-[500vh] w-full bg-premium-gray">
