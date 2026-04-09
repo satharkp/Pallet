@@ -119,14 +119,23 @@ function AssemblyScene() {
     if (groupRef.current) {
       groupRef.current.rotation.y = scroll * Math.PI * 0.5;
       
-      // Dynamic adjustments for mobile
+      // Dynamic adjustments based on scroll
       const isMobile = state.size.width < 768;
-      const scale = isMobile ? 0.75 : 1;
-      groupRef.current.scale.set(scale, scale, scale);
       
-      // Lift the whole scene up - higher on desktop (1.5) and slightly lower on mobile (1.0)
-      // Lift the whole scene up significantly for mobile to ensure visibility
-      groupRef.current.position.y = isMobile ? 2.5 : 1.5;
+      // Narrative focus: Scale up and move to center as we scroll
+      // Initial scale: 1.0 (Desktop) / 0.75 (Mobile)
+      // Focus scale: 1.25 (Desktop) / 1.0 (Mobile)
+      const initialScale = isMobile ? 0.75 : 1;
+      const targetScale = isMobile ? 1.0 : 1.25;
+      const currentScale = initialScale + scroll * (targetScale - initialScale);
+      groupRef.current.scale.set(currentScale, currentScale, currentScale);
+      
+      // Dynamic Y position:
+      // Start higher to allow for text, then center as user scrolls
+      // We'll use 2.5/1.5 as start points, and move towards 2.0/3.0 for visual centering
+      const initialY = isMobile ? 2.5 : 1.5;
+      const targetY = isMobile ? 2.8 : 3.2; // Visual center points for mobile/desktop
+      groupRef.current.position.y = initialY + scroll * (targetY - initialY);
     }
   });
 
@@ -141,6 +150,17 @@ function AssemblyScene() {
         <boxGeometry args={[2.6, 0.4, 2.2]} />
         <meshStandardMaterial color="#ffffff" metalness={0} roughness={1} />
       </mesh>
+
+      {/* Shadows now move with the group for consistent grounding */}
+      <ContactShadows 
+        resolution={1024} 
+        scale={20} 
+        blur={2} 
+        opacity={0.25} 
+        far={10} 
+        color="#000000" 
+        position={[0, -0.1, 0]} 
+      />
     </group>
   );
 }
@@ -152,8 +172,9 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.9]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.85]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
   return (
     <section ref={containerRef} className="relative h-[500vh] w-full bg-premium-gray">
@@ -173,15 +194,6 @@ export default function Hero() {
                 <AssemblyScene />
               </Float>
               <Environment preset="apartment" />
-              <ContactShadows 
-                resolution={1024} 
-                scale={20} 
-                blur={2} 
-                opacity={0.25} 
-                far={10} 
-                color="#000000" 
-                position={[0, window.innerWidth < 768 ? 2.4 : 1.4, 0]}
-              />
             </Suspense>
           </Canvas>
         </div>
@@ -202,9 +214,7 @@ export default function Hero() {
 
         {/* Scroll Hint */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          style={{ opacity: hintOpacity }}
           className="absolute bottom-12 z-20 flex flex-col items-center gap-4"
         >
           <div className="w-[1px] h-12 bg-gradient-to-t from-wood-rich to-transparent" />
