@@ -5,7 +5,8 @@ import {
   ContactShadows,
   PerspectiveCamera,
   Float,
-  useTexture
+  useTexture,
+  RoundedBox
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -131,9 +132,16 @@ function AssemblyScene() {
     if (mattress.current) {
       const t = Math.min(1, Math.max(0, (scroll - 0.35) * 3));
       const e = easeOutCubic(t);
-      mattress.current.scale.set(1.2, Math.max(0.01, e * 1), 1); // Prevent zero-scale warnings
+      mattress.current.scale.set(1, Math.max(0.01, e * 1), 1); // True scale to prevent pillow distortion
       mattress.current.position.y = 1.5 - e * 1.3; // Starts high, drops onto pallets
-      mattress.current.material.opacity = e;
+      
+      // Apply opacity to all meshes in the group
+      mattress.current.traverse((child) => {
+        if (child.isMesh) {
+          child.material.transparent = true;
+          child.material.opacity = e;
+        }
+      });
     }
 
     // Scene tilt/rotation
@@ -166,10 +174,23 @@ function AssemblyScene() {
       <group ref={p3}><Pallet /></group>
       <group ref={p4}><Pallet /></group>
 
-      <mesh ref={mattress} transparent opacity={0}>
-        <boxGeometry args={[2.6, 0.4, 2.2]} />
-        <meshStandardMaterial color="#ffffff" metalness={0} roughness={1} />
-      </mesh>
+      {/* Realistic Bed Assembly */}
+      <group ref={mattress}>
+        {/* Main Mattress */}
+        <RoundedBox args={[2.5, 0.35, 2.1]} radius={0.05} smoothness={4} position={[0, 0.175, 0]}>
+          <meshStandardMaterial color="#f8f9fa" roughness={0.8} />
+        </RoundedBox>
+        
+        {/* Pillow Left */}
+        <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[-0.6, 0.41, -0.65]}>
+          <meshStandardMaterial color="#ffffff" roughness={0.9} />
+        </RoundedBox>
+
+        {/* Pillow Right */}
+        <RoundedBox args={[0.9, 0.12, 0.5]} radius={0.06} smoothness={4} position={[0.6, 0.41, -0.65]}>
+          <meshStandardMaterial color="#ffffff" roughness={0.9} />
+        </RoundedBox>
+      </group>
 
       {/* Shadows now move with the group for consistent grounding */}
       <ContactShadows
