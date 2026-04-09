@@ -18,8 +18,8 @@ function SceneController() {
 
   React.useEffect(() => {
     if (isMobile) {
-      camera.position.set(0, 5, 12);
-      camera.fov = 45;
+      camera.position.set(0, 4, 12);
+      camera.fov = 55;
     } else {
       camera.position.set(0, 4, 8);
       camera.fov = 35;
@@ -125,7 +125,8 @@ function AssemblyScene() {
       groupRef.current.scale.set(scale, scale, scale);
       
       // Lift the whole scene up - higher on desktop (1.5) and slightly lower on mobile (1.0)
-      groupRef.current.position.y = isMobile ? 1.0 : 1.5;
+      // Lift the whole scene up significantly for mobile to ensure visibility
+      groupRef.current.position.y = isMobile ? 2.5 : 1.5;
     }
   });
 
@@ -179,7 +180,7 @@ export default function Hero() {
                 opacity={0.25} 
                 far={10} 
                 color="#000000" 
-                position={[0, window.innerWidth < 768 ? 0.9 : 1.4, 0]}
+                position={[0, window.innerWidth < 768 ? 2.4 : 1.4, 0]}
               />
             </Suspense>
           </Canvas>
