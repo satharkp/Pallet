@@ -1,11 +1,11 @@
 import React, { Suspense, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { 
-  Environment, 
-  ContactShadows, 
-  PerspectiveCamera, 
-  Float, 
-  useTexture 
+import {
+  Environment,
+  ContactShadows,
+  PerspectiveCamera,
+  Float,
+  useTexture
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -35,7 +35,7 @@ function SceneController() {
 function Pallet({ position, rotation }) {
   const texture = useTexture('/assets/wood-texture.png');
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  
+
   const palletRef = useRef();
 
   return (
@@ -69,7 +69,7 @@ function Pallet({ position, rotation }) {
 function AssemblyScene() {
   const { scrollYProgress } = useScroll();
   const groupRef = useRef();
-  
+
   // Create refs for each pallet to animate them manually in useFrame
   const p1 = useRef();
   const p2 = useRef();
@@ -79,7 +79,7 @@ function AssemblyScene() {
 
   useFrame((state) => {
     const scroll = scrollYProgress.get();
-    
+
     // Easing functions for realistic physics
     const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
     const easeOutBounce = (x) => {
@@ -90,7 +90,7 @@ function AssemblyScene() {
         else if (x < 2.5 / d1) { return n1 * (x -= 2.25 / d1) * x + 0.9375; } 
         else { return n1 * (x -= 2.625 / d1) * x + 0.984375; }
     };
-    
+
     // Pallet 1: Drop from top-left
     if (p1.current) {
       const t = Math.min(1, Math.max(0, scroll * 4)); // 0.0 to 0.25
@@ -139,10 +139,10 @@ function AssemblyScene() {
     // Scene tilt/rotation
     if (groupRef.current) {
       groupRef.current.rotation.y = scroll * Math.PI * 0.5;
-      
+
       // Dynamic adjustments based on scroll
       const isMobile = state.size.width < 768;
-      
+
       // Narrative focus: Scale up and move to center as we scroll
       // Initial scale: 1.0 (Desktop) / 0.75 (Mobile)
       // Focus scale: 1.25 (Desktop) / 1.0 (Mobile)
@@ -150,12 +150,11 @@ function AssemblyScene() {
       const targetScale = isMobile ? 1.0 : 1.25;
       const currentScale = initialScale + scroll * (targetScale - initialScale);
       groupRef.current.scale.set(currentScale, currentScale, currentScale);
-      
+
       // Dynamic Y position:
-      // Start higher to allow for text, then center as user scrolls
-      // We'll use 2.5/1.5 as start points, and move towards 2.0/3.0 for visual centering
-      const initialY = isMobile ? 2.5 : 1.5;
-      const targetY = isMobile ? 2.8 : 3.2; // Visual center points for mobile/desktop
+      // Start slightly lower (-1.5) to clear space for header, then move up to absolute center (0)
+      const initialY = isMobile ? -1.5 : -1.0;
+      const targetY = 0; 
       groupRef.current.position.y = initialY + scroll * (targetY - initialY);
     }
   });
@@ -166,21 +165,21 @@ function AssemblyScene() {
       <group ref={p2}><Pallet /></group>
       <group ref={p3}><Pallet /></group>
       <group ref={p4}><Pallet /></group>
-      
+
       <mesh ref={mattress} transparent opacity={0}>
         <boxGeometry args={[2.6, 0.4, 2.2]} />
         <meshStandardMaterial color="#ffffff" metalness={0} roughness={1} />
       </mesh>
 
       {/* Shadows now move with the group for consistent grounding */}
-      <ContactShadows 
-        resolution={1024} 
-        scale={20} 
-        blur={2} 
-        opacity={0.25} 
-        far={10} 
-        color="#000000" 
-        position={[0, -0.1, 0]} 
+      <ContactShadows
+        resolution={1024}
+        scale={20}
+        blur={2}
+        opacity={0.25}
+        far={10}
+        color="#000000"
+        position={[0, -0.1, 0]}
       />
     </group>
   );
@@ -200,7 +199,7 @@ export default function Hero() {
   return (
     <section ref={containerRef} className="relative h-[500vh] w-full bg-premium-gray">
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        
+
         {/* Three.js Canvas */}
         <div className="absolute inset-0 z-10">
           <Canvas shadows dpr={[1, 2]} camera={{ fov: 40 }}>
@@ -209,7 +208,7 @@ export default function Hero() {
             <ambientLight intensity={1.5} />
             <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} castShadow intensity={2} />
             <pointLight position={[-10, -10, -10]} intensity={1} />
-            
+
             <Suspense fallback={null}>
               <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                 <AssemblyScene />
@@ -220,7 +219,7 @@ export default function Hero() {
         </div>
 
         {/* Text Overlay */}
-        <motion.div 
+        <motion.div
           style={{ opacity: textOpacity, scale: textScale }}
           className="relative z-20 text-center pointer-events-none px-6"
         >
@@ -234,7 +233,7 @@ export default function Hero() {
         </motion.div>
 
         {/* Scroll Hint */}
-        <motion.div 
+        <motion.div
           style={{ opacity: hintOpacity }}
           className="absolute bottom-12 z-20 flex flex-col items-center gap-4"
         >
