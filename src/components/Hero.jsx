@@ -222,15 +222,15 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.05], [1, 0.85]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const textScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.85]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.02], [1, 0]);
 
   const [showText, setShowText] = React.useState(true);
   
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.05 && showText) setShowText(false);
-    else if (latest <= 0.05 && !showText) setShowText(true);
+    if (latest > 0.15 && showText) setShowText(false);
+    else if (latest <= 0.15 && !showText) setShowText(true);
   });
 
   return (
@@ -261,11 +261,11 @@ export default function Hero() {
             style={{ opacity: textOpacity, scale: textScale }}
             className="relative z-20 text-center pointer-events-none px-6"
           >
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-heading font-light tracking-tighter text-charcoal leading-none">
-              WOOD<br />
-              <span className="text-wood-rich italic">NEST.</span>
+            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-heading font-semibold tracking-tighter text-charcoal leading-none" style={{ textShadow: '2px 6px 8px rgba(0, 0, 0, 0.6)' }}>
+              WOOD
+              <span className="text-accent-green">NEST</span>
             </h1>
-            <p className="mt-6 md:mt-8 text-sm md:text-xl font-body text-charcoal/50 tracking-widest uppercase">
+            <p className="mt-6 md:mt-8 text-sm md:text-xl font-body text-charcoal/50 tracking-widest font-light uppercase" style={{ textShadow: '1px 4px 6px rgba(0, 0, 0, 0.5)' }}>
               PALLET FURNITURE
             </p>
           </motion.div>

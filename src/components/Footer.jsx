@@ -13,7 +13,7 @@ export default function Footer() {
           </p>
           <div className="flex gap-4">
             <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-wood-rich transition-colors">In</a>
-            <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-wood-rich transition-colors">Ig</a>
+            <a href="https://www.instagram.com/woodnest.in?igsh=b3VqMDYwM2R0eTlo" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-wood-rich transition-colors">Ig</a>
             <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-wood-rich transition-colors">Tw</a>
           </div>
         </div>
@@ -32,8 +32,9 @@ export default function Footer() {
           <h4 className="font-heading font-medium mb-6">Contact</h4>
           <ul className="flex flex-col gap-4 text-white/40 text-sm font-body">
             <li>hello@woodnest.com</li>
-            <li>+1 (555) 000-NEST</li>
-            <li>123 Artisan Way,<br />Portland, OR 97201</li>
+            <li>+91 8921825652</li>
+            <li>Delivery Across Kerala <br />
+              📍 Kochi</li>
           </ul>
         </div>
       </div>
